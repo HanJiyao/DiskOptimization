@@ -2,17 +2,22 @@ package algorithm;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.lang.reflect.Array;
 import java.util.*;
 
+
 public class DiskOptimization {
+    private static ArrayList resultData = new ArrayList();
+    static ArrayList getResult(){
+        return resultData;
+    }
     private DiskParameter dp = null;
 
     public static void main(String[] args){
         new DiskOptimization("diskq1.properties");
+        new DiskOptimizationUI();
     }
 
-    private DiskOptimization(String filename){
+    public DiskOptimization(String filename){
         try {
             Properties p = new Properties();
             p.load(new BufferedReader(new FileReader(filename)));
@@ -38,6 +43,11 @@ public class DiskOptimization {
         StringBuilder working2 = new StringBuilder();
         int total = 0;
         sequence.append(dp.getCurrent());
+
+        int min = Arrays.stream(location).min().getAsInt();
+        int max = Arrays.stream(location).max().getAsInt();
+        //get min and max
+
         int previous = dp.getCurrent();
         for (int current : location) {
             sequence.append(",").append(current);
@@ -47,13 +57,75 @@ public class DiskOptimization {
             total += d;
             previous = current;
         }
-        System.out.println(
-                name+"\n"+"====================" +
+        String result ="\n" + name + "\n" + "====================" +
                 "\nOrder of Access: " + sequence +
-                "\nTotal Distance = " + working1.substring(0,working1.length()-1) +
-                "\n               = " + working2.substring(0,working2.length()-2) +
-                "\n               = " + total + '\n'
-        );
+                "\nTotal Distance = " + working1.substring(0, working1.length()-1) +
+                "\n               = " + working2.substring(0, working2.length()-2) +
+                "\n               = " + total + '\n';
+        System.out.println(result);
+        resultData.add(result);
+    }
+
+    private void printSequenceCScan(String name, int[] location){
+        StringBuilder sequence = new StringBuilder();
+        StringBuilder working1 = new StringBuilder();
+        StringBuilder working2 = new StringBuilder();
+        int total = 0;
+        sequence.append(dp.getCurrent());
+
+        int cylinder = dp.getCylinders()-1;
+        //get cylinder
+        int previous = dp.getCurrent();
+        for (int current : location) {
+            sequence.append(",").append(current);
+            int d = Math.abs(previous - current);
+            working1.append("|").append(previous).append("-").append(current).append("|+");
+            working2.append(d).append(" + ");
+            total += d;
+            previous = current;
+        }
+        String result ="\n" + name + "\n" + "====================" +
+                "\nOrder of Access: " + sequence +
+                "\nTotal Distance = " + working1.substring(0, working1.length()-1) +"- "+cylinder+
+                "\n               = " + working2.substring(0, working2.length()-2) +"- "+cylinder+
+                "\n               = " + total +" - "+cylinder+
+                "\n               = " + (total-cylinder)+ '\n';
+
+        System.out.println(result);
+        resultData.add(result);
+    }
+
+    private void printSequenceCLook(String name, int[] location){
+        StringBuilder sequence = new StringBuilder();
+        StringBuilder working1 = new StringBuilder();
+        StringBuilder working2 = new StringBuilder();
+        int total = 0;
+        sequence.append(dp.getCurrent());
+
+        int min = Arrays.stream(location).min().getAsInt();
+        int max = Arrays.stream(location).max().getAsInt();
+        //get min and max
+
+        int ignore = max - min;
+        //the ignore calculation
+
+        int previous = dp.getCurrent();
+        for (int current : location) {
+            sequence.append(",").append(current);
+            int d = Math.abs(previous - current);
+            working1.append("|").append(previous).append("-").append(current).append("|+");
+            working2.append(d).append(" + ");
+            total += d;
+            previous = current;
+        }
+        String result ="\n" + name + "\n" + "====================" +
+                "\nOrder of Access: " + sequence +
+                "\nTotal Distance = " + working1.substring(0, working1.length()-1) +"- "+ignore+
+                "\n               = " + working2.substring(0, working2.length()-2) +"- "+ignore+
+                "\n               = " + total +"- "+ignore+
+                "\n               = " + (total-ignore) + '\n';
+        System.out.println(result);
+        resultData.add(result);
     }
 
     private void generateFCFS(){
@@ -230,9 +302,38 @@ public class DiskOptimization {
         return scan;
     }
 
+    //method 2
+    private int[] cscan(){
+        int [] sequence=dp.getSequence();
+        List<Integer> aSeq = new ArrayList<>();
+        for (int i1 : sequence) {
+            aSeq.add(i1);
+        }
+        aSeq.add(dp.getCurrent());
+        aSeq.add(0);
+        aSeq.add(dp.getCylinders()-1);
+        Collections.sort((aSeq));
+        if(dp.getPrevious()>dp.getCurrent()){
+            Collections.reverse(aSeq);
+        }
+        int currentCylinderIndex = aSeq.indexOf(dp.getCurrent());
+        List<Integer> scanSpliceArr1 = aSeq.subList(0,currentCylinderIndex);
+        List<Integer> scanSpliceArr2 = aSeq.subList(currentCylinderIndex,aSeq.size());
+        scanSpliceArr2.addAll(scanSpliceArr1);
+        scanSpliceArr2.remove(0);
+        int[] cscan = new int[sequence.length+2];
+        for(int i=0;i<scanSpliceArr2.size();i++){
+            cscan[i]=scanSpliceArr2.get(i);
+        }
+        return  cscan;
+        // the difference is get all the numbers include current in to an array list
+        // then sort the array list and substring base on the index of current
+        // last remove the current num and concatenate together to form the sequence
+    }
+
     private void generateCScan(){
-        int[] location = scsan();
-        printSequence("C-SCAN", location);
+        int[] location = cscan();
+        printSequenceCScan("C-SCAN", location);
     }
 
     private int[] arrangeByCLook(int current, int[] sequence) {
@@ -273,32 +374,8 @@ public class DiskOptimization {
 
     private void generateCLook(){
         int[] location = arrangeByCLook(dp.getCurrent(), dp.getSequence());
-        printSequence("C-LOOK", location);
+        printSequenceCLook("C-LOOK", location);
     }
-    //method 2
-    private int[] scsan(){
-        int [] sequence=dp.getSequence();
-        List<Integer> aSeq = new ArrayList<>();
-        for (int i1 : sequence) {
-            aSeq.add(i1);
-        }
-        aSeq.add(dp.getCurrent());
-        aSeq.add(0);
-        aSeq.add(dp.getCylinders()-1);
-        Collections.sort((aSeq));
-        if(dp.getPrevious()>dp.getCurrent()){
-            Collections.reverse(aSeq);
-        }
-        int currentCylinderIndex = aSeq.indexOf(dp.getCurrent());
-        List<Integer> scanSpliceArr1 = aSeq.subList(0,currentCylinderIndex);
-        List<Integer> scanSpliceArr2 = aSeq.subList(currentCylinderIndex,aSeq.size());
-        scanSpliceArr2.addAll(scanSpliceArr1);
-        scanSpliceArr2.remove(0);
-        int[] cscan = new int[sequence.length+2];
-        for(int i=0;i<scanSpliceArr2.size();i++){
-            cscan[i]=scanSpliceArr2.get(i);
-        }
-        return  cscan;
-    }
+
 
 }
