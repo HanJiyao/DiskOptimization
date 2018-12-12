@@ -14,7 +14,7 @@ class DiskOptimizationUI extends JFrame {
     private JLabel result = new JLabel();
     DiskOptimizationUI(){
         super("Disk Optimization App");
-        setSize(1000,300);
+        setSize(900,300);
         setResizable(true);
         JLabel title = new JLabel("Choose One Algorithm: ");
         JPanel p = new JPanel();

@@ -26,6 +26,7 @@ public class DiskOptimization {
             e.printStackTrace();
         }
         generateAnalysis();
+        //call in main method to generate the print below
     }
 
     private void generateAnalysis(){
@@ -35,6 +36,7 @@ public class DiskOptimization {
         generateLook();
         generateCScan();
         generateCLook();
+        // call all the algorithm
     }
 
     private void printSequence(String name, int[] location){
@@ -43,10 +45,6 @@ public class DiskOptimization {
         StringBuilder working2 = new StringBuilder();
         int total = 0;
         sequence.append(dp.getCurrent());
-
-        int min = Arrays.stream(location).min().getAsInt();
-        int max = Arrays.stream(location).max().getAsInt();
-        //get min and max
 
         int previous = dp.getCurrent();
         for (int current : location) {
@@ -86,7 +84,7 @@ public class DiskOptimization {
         }
         String result ="\n" + name + "\n" + "====================" +
                 "\nOrder of Access: " + sequence +
-                "\nTotal Distance = " + working1.substring(0, working1.length()-1) +"- "+cylinder+
+                "\nTotal Distance = " + working1.substring(0, working1.length()-1) +"-"+cylinder+
                 "\n               = " + working2.substring(0, working2.length()-2) +"- "+cylinder+
                 "\n               = " + total +" - "+cylinder+
                 "\n               = " + (total-cylinder)+ '\n';
@@ -120,7 +118,7 @@ public class DiskOptimization {
         }
         String result ="\n" + name + "\n" + "====================" +
                 "\nOrder of Access: " + sequence +
-                "\nTotal Distance = " + working1.substring(0, working1.length()-1) +"- "+ignore+
+                "\nTotal Distance = " + working1.substring(0, working1.length()-1) +"-"+ignore+
                 "\n               = " + working2.substring(0, working2.length()-2) +"- "+ignore+
                 "\n               = " + total +"- "+ignore+
                 "\n               = " + (total-ignore) + '\n';
@@ -133,28 +131,36 @@ public class DiskOptimization {
 //        for (int aLocation : location) {
 //            System.out.println(aLocation);
 //        }
+        //FCFS no need to change arrangement, directly return the same array
         printSequence("FCFS", location);
     }
 
     private int[] arrangeBySSTF(int current, int[] sequence){
         int n = sequence.length;
         int[] sstf = new int[n];
+        //get the new array by new array sstf
         System.arraycopy(sequence, 0, sstf, 0, n);
         int ii;
         for(int i=0;i<n;i++){
             int minimun = dp.getCylinders();
+            //let the largest number as initial min
             ii = i;
             for (int j=i;j<n;j++){
+                //this loop start from the current assign index i to check every num after
                 int distance = Math.abs(current - sstf[j]);
                 if (distance < minimun){
                     ii = j;
                     minimun = distance;
                 }
             }
+            //this determine the num with least distance and assign ii to the index
             int temp = sstf[i];
             sstf[i] = sstf[ii];
             sstf[ii] = temp;
             current = sstf[i];
+            //similar to selection sort
+            //set the current i index with the num with found least distance ii
+            //and the for loop going on to check the remaining positions
         }
         return sstf;
     }
@@ -175,12 +181,12 @@ public class DiskOptimization {
         }
         List<Integer> before = new ArrayList<Integer>();
         List<Integer> after = new ArrayList<Integer>();
-        if (dp.getPrevious() < dp.getCurrent()) {
+        if (dp.getPrevious() <= dp.getCurrent()) {
             tempScan.add(dp.getCylinders()-1);
             Collections.sort(tempScan);
             // separate into before and after
             for (int i=0;i<n+1;i++){
-                if(tempScan.get(i)>dp.getCurrent()){
+                if(tempScan.get(i)>=dp.getCurrent()){
                     before.add(tempScan.get(i));
                 }else{
                     after.add(tempScan.get(i));
@@ -223,10 +229,10 @@ public class DiskOptimization {
         }
         List<Integer> before = new ArrayList<Integer>();
         List<Integer> after = new ArrayList<Integer>();
-        if (dp.getPrevious() < dp.getCurrent()) {
+        if (dp.getPrevious() <= dp.getCurrent()) {
             Collections.sort(tempLook);
             for (int i=0;i<n;i++){
-                if(tempLook.get(i)>dp.getCurrent()){
+                if(tempLook.get(i)>=dp.getCurrent()){
                     before.add(tempLook.get(i));
                 }else{
                     after.add(tempLook.get(i));
@@ -271,7 +277,7 @@ public class DiskOptimization {
         temp.add(dp.getCylinders()-1);
         temp.add(0);
         Collections.sort(temp);
-        if (dp.getPrevious() < dp.getCurrent()) {
+        if (dp.getPrevious() <= dp.getCurrent()) {
             // separate into before and after
             for (int i=0;i<n+2;i++){
                 if(temp.get(i)>dp.getCurrent()){
@@ -313,7 +319,7 @@ public class DiskOptimization {
         aSeq.add(0);
         aSeq.add(dp.getCylinders()-1);
         Collections.sort((aSeq));
-        if(dp.getPrevious()>dp.getCurrent()){
+        if(dp.getPrevious()>=dp.getCurrent()){
             Collections.reverse(aSeq);
         }
         int currentCylinderIndex = aSeq.indexOf(dp.getCurrent());
@@ -346,9 +352,9 @@ public class DiskOptimization {
         List<Integer> before = new ArrayList<Integer>();
         List<Integer> after = new ArrayList<Integer>();
         Collections.sort(temp);
-        if (dp.getPrevious() < dp.getCurrent()) {
+        if (dp.getPrevious() <= dp.getCurrent()) {
             for (int i=0;i<n;i++){
-                if(temp.get(i)>dp.getCurrent()){
+                if(temp.get(i)>=dp.getCurrent()){
                     before.add(temp.get(i));
                 }else{
                     after.add(temp.get(i));
@@ -356,7 +362,7 @@ public class DiskOptimization {
             }
         } else {
             for (int i=0;i<n;i++){
-                if(temp.get(i)<dp.getCurrent()){
+                if(temp.get(i)<=dp.getCurrent()){
                     before.add(temp.get(i));
                 }else{
                     after.add(temp.get(i));
