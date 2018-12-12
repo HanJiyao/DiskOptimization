@@ -5,21 +5,22 @@ import javax.swing.border.EmptyBorder;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
+import java.util.Objects;
 
 // done by Han Jiyao Admin 164399M
 
 // Swing init
 class DiskOptimizationUI extends JFrame {
-    JLabel title = new JLabel("Choose One Algorithm: ");
-    JLabel result = new JLabel();
-    JPanel p = new JPanel();
-    String[] algorithm = new String[] {"FCFS", "SSTF", "SCAN", "LOOK", "C-SCAN", "C-LOOK"};
-    JComboBox<String> combo = new JComboBox<String>(algorithm);
+    private JLabel result = new JLabel();
     DiskOptimizationUI(){
         super("Disk Optimization App");
         setSize(1000,300);
         setResizable(true);
+        JLabel title = new JLabel("Choose One Algorithm: ");
+        JPanel p = new JPanel();
         p.add(title);
+        String[] algorithm = new String[]{"FCFS", "SSTF", "SCAN", "LOOK", "C-SCAN", "C-LOOK"};
+        JComboBox<String> combo = new JComboBox<String>(algorithm);
         p.add(combo);
         String resultDisplay = String.valueOf(DiskOptimization.getResult().get(0));
         result.setText("<html>" + resultDisplay.replaceAll("<","&lt;").
@@ -28,7 +29,7 @@ class DiskOptimizationUI extends JFrame {
             public void actionPerformed(ActionEvent event) {
                 // Get the source of the component, which is our combo
                 JComboBox comboBox = (JComboBox) event.getSource();
-                Object selected = comboBox.getSelectedItem().toString();
+                Object selected = Objects.requireNonNull(comboBox.getSelectedItem()).toString();
                 String resultChange="";
                 if(selected.equals("FCFS"))
                     resultChange = String.valueOf(DiskOptimization.getResult().get(0));
@@ -46,7 +47,6 @@ class DiskOptimizationUI extends JFrame {
                         (">", "&gt;").replaceAll("\n", "<br/>") + "</html>");
             }
         });
-
         p.add(result);
         p.setBorder(new EmptyBorder(50,0,0,0));
         add(p);
