@@ -198,7 +198,7 @@ public class DiskOptimization {
             tempScan.add(0);
             Collections.sort(tempScan);
             for (int i=0;i<n+1;i++){
-                if(tempScan.get(i)<dp.getCurrent()){
+                if(tempScan.get(i)<=dp.getCurrent()){
                     before.add(tempScan.get(i));
                 }else{
                     after.add(tempScan.get(i));
@@ -242,7 +242,7 @@ public class DiskOptimization {
         } else {
             Collections.sort(tempLook);
             for (int i=0;i<n;i++){
-                if(tempLook.get(i)<dp.getCurrent()){
+                if(tempLook.get(i)<=dp.getCurrent()){
                     before.add(tempLook.get(i));
                 }else{
                     after.add(tempLook.get(i));
